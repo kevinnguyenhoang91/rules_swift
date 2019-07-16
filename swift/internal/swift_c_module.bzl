@@ -26,9 +26,7 @@ def _swift_c_module_impl(ctx):
         dep = ctx.attr.deps[0]
         dep_cc_info = dep[CcInfo]
         this_cc_info = CcInfo(
-            compilation_context = cc_common.create_compilation_context(
-                includes = ctx.attr.includes,
-            ),
+            compilation_context = cc_common.create_compilation_context()
         )
 
         return [
