@@ -160,6 +160,17 @@ SWIFT_FEATURE_EMIT_SWIFTINTERFACE = "swift.emit_swiftinterface"
 # higher in the dependency graph than they need to be.
 SWIFT_FEATURE_SUPPORTS_PRIVATE_DEPS = "swift.supports_private_deps"
 
+# If enabled, Swift compilation actions will use a single import search path by
+# generating a vfsoverlay containing a single virtual swiftmodule directory.
+# For Swift actions with large transitive dependency sets, this results in
+# faster searching of swiftmodules, and faster compilation times.
+#
+# Using a single import search path can avoid the worst case: a quadratic
+# search to find N modules (transitive dependencies) in N directories. For
+# targets with large transitive dependency sets, this can bring significant
+# improvements to compile times.
+SWIFT_FEATURE_ENABLE_VFSOVERLAYS = "swift.enable_vfsoverlays"
+
 def are_all_features_enabled(feature_configuration, feature_names):
     """Returns `True` if all features are enabled in the feature configuration.
 
