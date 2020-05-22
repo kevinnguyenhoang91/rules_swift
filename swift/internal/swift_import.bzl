@@ -26,7 +26,8 @@ def _swift_import_impl(ctx):
     deps = ctx.attr.deps
     swiftdoc = ctx.file.swiftdoc
     swiftmodule = ctx.file.swiftmodule
-
+    alwayslink = ctx.attr.alwayslink
+    
     # We have to depend on the C++ toolchain directly here to create the
     # libraries to link. Depending on the Swift toolchain causes a problematic
     # cyclic dependency for built-from-source toolchains.
@@ -41,9 +42,10 @@ def _swift_import_impl(ctx):
     libraries_to_link = [
         cc_common.create_library_to_link(
             actions = ctx.actions,
+            alwayslink = alwayslink,
             cc_toolchain = cc_toolchain,
             feature_configuration = cc_feature_configuration,
-            static_library = archive,
+            pic_static_library = archive,
         )
         for archive in archives
     ]
@@ -99,7 +101,7 @@ swift_import = rule(
         {
             "archives": attr.label_list(
                 allow_empty = False,
-                allow_files = ["a"],
+                allow_files = ["a", "lo"],
                 doc = """\
 The list of `.a` files provided to Swift targets that depend on this target.
 """,
@@ -128,6 +130,18 @@ The `.swiftmodule` file provided to Swift targets that depend on this target.
                 doc = """\
 The C++ toolchain from which linking flags and other tools needed by the Swift
 toolchain (such as `clang`) will be retrieved.
+""",
+            ),
+            "alwayslink": attr.bool(
+                default = False,
+                doc = """\
+If true, any binary that depends (directly or indirectly) on this Swift module
+will link in all the object files for the files listed in `srcs`, even if some
+contain no symbols referenced by the binary. This is useful if your code isn't
+explicitly called by code in the binary; for example, if you rely on runtime
+checks for protocol conformances added in extensions in the library but do not
+directly reference any other symbols in the object file that adds that
+conformance.
 """,
             ),
         },
