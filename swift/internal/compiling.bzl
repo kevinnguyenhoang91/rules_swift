@@ -80,7 +80,7 @@ _SWIFTMODULES_VFS_ROOT = "/__build_bazel_rules_swift/swiftmodules"
 # that is on a Mac Pro for historical reasons.
 # TODO(b/32571265): Generalize this based on platform and core count
 # when an API to obtain this is available.
-_DEFAULT_WMO_THREAD_COUNT = 12
+_DEFAULT_WMO_THREAD_COUNT = 0
 
 def compile_action_configs():
     """Returns the list of action configs needed to perform Swift compilation.
