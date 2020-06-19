@@ -76,7 +76,7 @@ _SWIFTMODULES_VFS_ROOT = "/__build_bazel_rules_swift/swiftmodules"
 # that is on a Mac Pro for historical reasons.
 # TODO(b/32571265): Generalize this based on platform and core count
 # when an API to obtain this is available.
-_DEFAULT_WMO_THREAD_COUNT = 12
+_DEFAULT_WMO_THREAD_COUNT = 0
 
 def compile_action_configs():
     """Returns the list of action configs needed to perform Swift compilation.
@@ -2169,7 +2169,7 @@ def _emitted_output_nature(is_wmo_implied_by_features, user_compile_flags):
     # `-num-threads 12` to the command line. We need to stage that as our
     # initial default here to ensure that we return the right value if the user
     # compile flags don't otherwise override it.
-    num_threads = _DEFAULT_WMO_THREAD_COUNT if is_wmo else 1
+    num_threads = _DEFAULT_WMO_THREAD_COUNT if is_wmo else 0
 
     for copt in user_compile_flags:
         if saw_space_separated_num_threads:
@@ -2180,11 +2180,11 @@ def _emitted_output_nature(is_wmo_implied_by_features, user_compile_flags):
         elif copt.startswith("-num-threads="):
             num_threads = _safe_int(copt.split("=")[1])
 
-    if not num_threads:
+    if num_threads == None or num_threads < 0:
         fail("The value of '-num-threads' must be a positive integer.")
 
     return struct(
-        emits_multiple_objects = not (is_wmo and num_threads == 1),
+        emits_multiple_objects = not (is_wmo and num_threads == 0),
         emits_partial_modules = not is_wmo,
     )
 
